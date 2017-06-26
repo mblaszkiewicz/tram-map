@@ -2,28 +2,34 @@ package controllers
 
 import javax.inject._
 
+import data_structures.{LightTram, Tram}
 import play.api.mvc._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+import play.api.Logger
+
+//Ogólnie czy ten jason wysyłany mógłby być jako trams: [lista tych które się poruszają],
+// deleted: [lista tych które trzeba usunąć] ??? (w ogóle czy trzeba tych do usuwania?)
 
 @Singleton
-class RequestController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
-  var x = 0
+class RequestController @Inject() (cc: ControllerComponents) extends AbstractController(cc) {
 
-  def index() = Action {
-    x += 1
-    implicit request: Request[AnyContent] =>
-    if (x % 2 == 0)
-      Ok("{\"trams\":[" +
-      "{\"id\":0, \"name\": \"4 Wzgórza Krzesławickie\", \"lat\": 50.08186, \"lon\": 19.8820}," +
-      "{\"id\":1, \"name\": \"22 Walcownia\", \"lat\": 50.0788, \"lon\": 19.9138}," +
-      "{\"id\":2, \"name\": \"13 Nowy Bieżanów\", \"lat\": 50.0317, \"lon\": 19.9340}," +
-      "{\"id\":3, \"name\": \"14 Bronowice\", \"lat\": 50.0950, \"lon\": 19.9962}" +
-      "]}")
-    else
-      Ok("{\"trams\":[" +
-        "{\"id\":0, \"name\": \"4 Wzgórza Krzesławickie\", \"lat\": 50.03186, \"lon\": 19.8823}," +
-        "{\"id\":1, \"name\": \"22 Walcownia\", \"lat\": 50.0780, \"lon\": 19.915}," +
-        "{\"id\":2, \"name\": \"13 Nowy Bieżanów\", \"lat\": 50.0315, \"lon\": 19.9338}," +
-        "{\"id\":3, \"isDeleted\": \"true\"}" +
-        "]}")
+  def index = Action {
+    //czy to modyfikuje na stałe Tram.currentList???
+    val listMoving: List[LightTram] = Tram.currentList
+      .filter(tram => {tram.isDeleted.isEmpty})
+      .map(tram => LightTram(tram))
+    val listDeleted: List[Int] = Tram.currentList
+        .filter(tram => {tram.isDeleted.isDefined})
+        .map(tram => (tram.id takeRight 5).toInt)
+
+    implicit val lightTramWrites: Writes[LightTram] = Json.writes[LightTram]
+
+    val json = Json.toJson(listMoving)
+    val json2 = Json.toJson(listDeleted)
+    //bardzo profesjonalne rozwiązanie
+    Logger.info(s"JSON ${json2}")
+    Ok("{\"trams\":" + json + ", \"deleted\":" + json2 + "}")
   }
 }
+

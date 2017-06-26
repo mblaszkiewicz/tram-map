@@ -8,6 +8,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.12.2"
 
 libraryDependencies += guice
+libraryDependencies += ws
+libraryDependencies += ehcache
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.0.0" % Test
 
 // Adds additional packages into Twirl
