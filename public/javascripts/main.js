@@ -21,9 +21,9 @@ function update() {
                         delete markers[table.trams[i].id];
                     }
                     if(typeof markers[table.trams[i].id] === 'undefined')
-                        markers[table.trams[i].id] = new L.marker([table.trams[i].lat,table.trams[i].lon]).bindPopup(table.trams[i].name).addTo(mymap);
+                        markers[table.trams[i].id] = new L.Marker.movingMarker([[table.trams[i].lat, table.trams[i].lon]], []).bindPopup(table.trams[i].name).addTo(mymap);
                     else
-                        markers[table.trams[i].id].setLatLng([table.trams[i].lat,table.trams[i].lon]).update();
+                        markers[table.trams[i].id].moveTo([table.trams[i].lat,table.trams[i].lon], 5000);
                 }
             } else {
                 /* Something went wrong */
@@ -33,7 +33,7 @@ function update() {
     }
     request.open('GET', "/data-request", true);
     request.send();
-    setTimeout(update, 5000);
+    setTimeout(update, 50); //bo on ten timeout liczy od zakończenia się ruchu więc powinno 'prawie nie być' a dla mniejszych nie działa : (
 }
 
 update();

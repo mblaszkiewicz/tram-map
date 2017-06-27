@@ -28,7 +28,7 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
     val json = Json.toJson(listMoving)
     val json2 = Json.toJson(listDeleted)
     //bardzo profesjonalne rozwiązanie
-    Logger.info(s"JSON ${json2}")
+    //Logger.info(s"JSON ${json2}")
     Ok("{\"trams\":" + json + ", \"deleted\":" + json2 + "}")
   }
 }

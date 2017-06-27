@@ -27,7 +27,7 @@ class TramProvider @Inject()(actorSystem: ActorSystem, ws: WSClient)
                                     (implicit exec: ExecutionContext){
 
   //nie mam pojęcia czy zostało to uieszczone w dobrym miejscu w kontekście sztuki developerskiej, ale trudno
-  actorSystem.scheduler.schedule(1 seconds, 2 seconds)(requestForTrams())
+  actorSystem.scheduler.schedule(100 milliseconds, 1 seconds)(requestForTrams())
 
   private val request: WSRequest = ws.url("http://www.ttss.krakow.pl/internetservice/" +
     "geoserviceDispatcher/services/vehicleinfo/vehicles?positionType=CORRECTED")
