@@ -33,7 +33,7 @@ function update() {
     }
     request.open('GET', "/data-request", true);
     request.send();
-    setTimeout(update, 50); //bo on ten timeout liczy od zakończenia się ruchu więc powinno 'prawie nie być' a dla mniejszych nie działa : (
+    setTimeout(update, 500); //bo on ten timeout liczy od zakończenia się ruchu więc powinno 'prawie nie być' a dla mniejszych nie działa : (
 }
 
 update();

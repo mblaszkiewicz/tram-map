@@ -3,7 +3,7 @@ package controllers
 import javax.inject._
 import java.util.Calendar
 import scala.collection.mutable.Map
-import data_structures.{LightTram, PieceOfSchedule, Schedule, Tram}
+import data_structures.{LightTram, PieceOfSchedule, Schedule, Tram, Stop}
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -17,17 +17,16 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
 
   def index = Action {
     //czy to modyfikuje na stałe Tram.currentList???
-    var listMoving: List[LightTram] = List()
-      //Tram.currentList
-      //.filter(tram => {tram.isDeleted.isEmpty})
-      //.map(tram => LightTram(tram))
+    var listMoving: List[LightTram] = Tram.currentList.
+      filter(tram => {tram.isDeleted.isEmpty}).
+      map(tram => LightTram(tram))
     var listDeleted: List[Int] = Tram.currentList
         .filter(tram => {tram.isDeleted.isDefined})
         .map(tram => (tram.id takeRight 5).toInt)
 
     //planned trips
 
-    //MOCK
+    //MOCK routs to mapa indeksowana krótkimi nazwami przystanków (od, do) zawierająca listę kolejnych współrzędnych odcinka
     var routes = Map[(String, String),List[(Int, Int)]]()
     var lis = List((1,1), (2,2), (3,3))
     routes = routes + (("1","2") -> List((180367133,72043450), (180234831, 71825984), (180074257, 71632051), (180064597, 71601349)))
@@ -44,9 +43,11 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
           listDeleted =  (vehicle takeRight 5).toInt :: listDeleted
         }
         case (Nil, _) => {
+          val lat = Stop.getLatitude(schedule.actual(0).stop.shortName)
+          val lon = Stop.getLongitude(schedule.actual(0).stop.shortName)
           val tram = new LightTram((vehicle takeRight 5).toInt,
             "PLANNED " + schedule.routeName + " - " + schedule.directionText,
-            1000, 1000)
+            lat.toDouble / 3600000, lon.toDouble / 3600000)
           listMoving = tram :: listMoving
         }
         case (prev, next) => {
@@ -74,7 +75,7 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
               {
                 var tram = new LightTram((vehicle takeRight 5).toInt,
                   "PLANNED " + schedule.routeName + " - " + schedule.directionText,
-                  route(position)._1, route(position)._2)
+                  route(position)._1.toDouble/3600000, route(position)._2.toDouble/3600000)
                 listMoving = tram :: listMoving
               }
             }
@@ -89,7 +90,7 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
     val json = Json.toJson(listMoving)
     val json2 = Json.toJson(listDeleted)
     //bardzo profesjonalne rozwiązanie
-    //Logger.info(s"JSON ${json}")
+    Logger.info(s"JSON ${json}")
     Ok("{\"trams\":" + json + ", \"deleted\":" + json2 + "}")
   }
 
