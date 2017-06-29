@@ -74,13 +74,29 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
                   offset = 0
                 }
               }
-              var position: Int = (offset * route.size) / duration
-              if( position < route.size )
-              {
+              var position_F: Double = (offset.toDouble * route.size.toDouble) / duration.toDouble
+              var position: Int = position_F.floor.toInt
+              position_F = position_F - position
+              if( position == route.size - 1 ) {
                 var tram = new LightTram((vehicle takeRight 5).toInt,
                   "PLANNED " + schedule.routeName + " - " + schedule.directionText,
                   route(position)._1.toDouble/3600000, route(position)._2.toDouble/3600000)
                 listMoving = tram :: listMoving
+              }
+              if( position < route.size - 1){
+                var lon0: Double = route(position)._1.toDouble / 3600000
+                var lat0: Double = route(position)._2.toDouble / 3600000
+                var lon1: Double = route(position+1)._1.toDouble / 3600000
+                var lat1: Double = route(position+1)._2.toDouble / 3600000
+
+                var new_lon: Double = lon0 - (lon0 - lon1).toDouble * position_F
+                var new_lat: Double = lat0 - (lat0 - lat1).toDouble * position_F
+
+                var tram = new LightTram((vehicle takeRight 5).toInt,
+                  "PLANNED " + schedule.routeName + " - " + schedule.directionText,
+                  new_lon, new_lat)
+                listMoving = tram :: listMoving
+
               }
             }
             case None => None
@@ -94,7 +110,7 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
     val json = Json.toJson(listMoving)
     val json2 = Json.toJson(listDeleted)
     //bardzo profesjonalne rozwiązanie
-    //Logger.info(s"JSON ${json}")
+    Logger.info(s"JSON ${json}")
     Ok("{\"trams\":" + json + ", \"deleted\":" + json2 + "}")
   }
 
