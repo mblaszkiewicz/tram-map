@@ -51,11 +51,11 @@ class ScheduleProvider @Inject()(actorSystem: ActorSystem, ws: WSClient)
 
       schedule onComplete{
         case Success(s) => {
-          Logger.info(s"Schedule ${s}!")
-          Schedule.update(s)
+          //Logger.info(s"Schedule ${s}!")
+          Schedule.update(trip.tripId, s)
         }
         case Failure(e) => {
-          Logger.info(s"Schedule problem with tripId = ${trip.tripId}")
+          //Logger.info(s"Schedule problem with tripId = ${trip.tripId}")
         }
       }
     }

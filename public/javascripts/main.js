@@ -25,6 +25,12 @@ function update() {
                     else
                         markers[table.trams[i].id].moveTo([table.trams[i].lat,table.trams[i].lon], 5000);
                 }
+                for(var i = 0; i < table.deleted.length; i++){
+                    if(markers[table.deleted[i]] != undefined){
+                        mymap.removeLayer(markers[table.deleted[i]]);
+                        delete markers[table.deleted[i]];
+                    }
+                }
             } else {
                 /* Something went wrong */
                 alert("NOT GREAT");
@@ -33,7 +39,7 @@ function update() {
     }
     request.open('GET', "/data-request", true);
     request.send();
-    setTimeout(update, 500); //bo on ten timeout liczy od zakończenia się ruchu więc powinno 'prawie nie być' a dla mniejszych nie działa : (
+    setTimeout(update, 50); //bo on ten timeout liczy od zakończenia się ruchu więc powinno 'prawie nie być' a dla mniejszych nie działa : (
 }
 
 update();

@@ -28,13 +28,14 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
 
     //MOCK routs to mapa indeksowana krótkimi nazwami przystanków (od, do) zawierająca listę kolejnych współrzędnych odcinka
     var routes = Map[(String, String),List[(Int, Int)]]()
-    var lis = List((1,1), (2,2), (3,3))
     routes = routes + (("1","2") -> List((180367133,72043450), (180234831, 71825984), (180074257, 71632051), (180064597, 71601349)))
 
 
     var planned = List[LightTram]()
-    for((vehicle, schedule) <- Schedule.schedules) {
+    for((key, value) <- Schedule.schedules) {
 
+      val vehicle = value._2
+      val schedule = value._1
       val prevStop = schedule.old take 1
       val nextStop = schedule.actual take 1
 
@@ -51,6 +52,42 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
           listMoving = tram :: listMoving
         }
         case (prev, next) => {
+          val lat0 = Stop.getLatitude(schedule.old(0).stop.shortName)
+          val lon0 = Stop.getLongitude(schedule.old(0).stop.shortName)
+          val lat1 = Stop.getLatitude(schedule.actual(0).stop.shortName)
+          val lon1 = Stop.getLongitude(schedule.actual(0).stop.shortName)
+          var now = Calendar.getInstance()
+          var duration = 0
+          var offset = 0
+          var time1: String = ""
+          var time2: String = ""
+          (prev(0).plannedTime, next(0).plannedTime) match {
+            case (Some(p), Some(n)) => {
+              time1 = p
+              time2 = n
+              duration = toTime(n) - toTime(p)
+              offset = now.get(Calendar.HOUR_OF_DAY) * 3600
+              offset += (now.get(Calendar.MINUTE) * 60)
+              offset += now.get(Calendar.SECOND)
+              offset -= toTime(p)
+            }
+            case (_, _) => {
+              duration = 1
+              offset = 0
+            }
+          }
+
+          var position: Double = offset.toDouble / duration
+
+          var new_lon: Double = lon0.toDouble - (lon0 - lon1).toDouble * position
+          var new_lat: Double = lat0.toDouble - (lat0 - lat1).toDouble * position
+          Logger.info(s"Tram ${schedule.routeName} from ${lat0}, ${lon0} to ${lat1}, ${lon0} with position ${position} to ${new_lat}, ${new_lon} times ${time1}, ${time2}")
+          var tram = new LightTram((vehicle takeRight 5).toInt,
+            "PLANNED " + schedule.routeName + " - " + schedule.directionText,
+            new_lat/3600000, new_lon/3600000)
+          listMoving = tram :: listMoving
+
+          /*
           val route = routes.get(prev(0).stop.shortName, next(0).stop.shortName)
           route match {
             case Some(route) => {
@@ -80,7 +117,9 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
               }
             }
             case None => None
+
           }
+          */
         }
       }
     }
@@ -90,7 +129,7 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
     val json = Json.toJson(listMoving)
     val json2 = Json.toJson(listDeleted)
     //bardzo profesjonalne rozwiązanie
-    Logger.info(s"JSON ${json}")
+    //Logger.info(s"JSON ${json}")
     Ok("{\"trams\":" + json + ", \"deleted\":" + json2 + "}")
   }
 

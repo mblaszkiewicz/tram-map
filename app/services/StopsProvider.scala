@@ -41,7 +41,7 @@ class StopsProvider @Inject()(actorSystem: ActorSystem, ws: WSClient)
 
     stops onComplete{
       case Success(stopsList) => {
-        Logger.info(s"Stop list ${stopsList}!");
+        //Logger.info(s"Stop list ${stopsList}!");
         Stop.update(stopsList);
       }
     }

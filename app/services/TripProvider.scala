@@ -51,7 +51,7 @@ class TripProvider @Inject()(actorSystem: ActorSystem, ws: WSClient)
 
       trips onComplete{
         case Success(tripList) => {
-          Logger.info(s"Trip list ${tripList}!");
+          //Logger.info(s"Trip list ${tripList}!");
           Trip.update(tripList)
         }
       }
