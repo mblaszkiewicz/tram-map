@@ -2,14 +2,12 @@ package controllers
 
 import javax.inject._
 import java.util.Calendar
-
 import scala.collection.mutable.Map
-import data_structures._
+import data_structures.{LightTram, PieceOfSchedule, Schedule, Tram, Stop}
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.Logger
-import services.WaypointProvider
 
 //Ogólnie czy ten jason wysyłany mógłby być jako trams: [lista tych które się poruszają],
 // deleted: [lista tych które trzeba usunąć] ??? (w ogóle czy trzeba tych do usuwania?)
@@ -17,7 +15,7 @@ import services.WaypointProvider
 @Singleton
 class RequestController @Inject() (cc: ControllerComponents) extends AbstractController(cc) {
 
-  def index(n: Double, s: Double, w: Double, e: Double) = Action {
+  def index = Action {
     //czy to modyfikuje na stałe Tram.currentList???
     var listMoving: List[LightTram] = Tram.currentList.
       filter(tram => {tram.isDeleted.isEmpty}).
@@ -30,13 +28,14 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
 
     //MOCK routs to mapa indeksowana krótkimi nazwami przystanków (od, do) zawierająca listę kolejnych współrzędnych odcinka
     var routes = Map[(String, String),List[(Int, Int)]]()
-    //var lis = List((1,1), (2,2), (3,3))
-    //routes = routes + (("1","2") -> List((180367133,72043450), (180234831, 71825984), (180074257, 71632051), (180064597, 71601349)))
-    routes =
+    routes = routes + (("1","2") -> List((180367133,72043450), (180234831, 71825984), (180074257, 71632051), (180064597, 71601349)))
+
 
     var planned = List[LightTram]()
-    for((vehicle, schedule) <- Schedule.schedules) {
+    for((key, value) <- Schedule.schedules) {
 
+      val vehicle = value._2
+      val schedule = value._1
       val prevStop = schedule.old take 1
       val nextStop = schedule.actual take 1
 
@@ -92,7 +91,7 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
     val json = Json.toJson(listMoving)
     val json2 = Json.toJson(listDeleted)
     //bardzo profesjonalne rozwiązanie
-    Logger.info(s"JSON ${json}")
+    //Logger.info(s"JSON ${json}")
     Ok("{\"trams\":" + json + ", \"deleted\":" + json2 + "}")
   }
 
