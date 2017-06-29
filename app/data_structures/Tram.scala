@@ -11,8 +11,10 @@ object Tram{
   var lastUpdate: Long = 0
 
   def update(time: Long, newList: List[Tram]): Unit = {
-    lastUpdate = time
-    previousList = currentList
-    currentList = newList
+    currentList.synchronized {
+      lastUpdate = time
+      previousList = currentList
+      currentList = newList
+    }
   }
 }
