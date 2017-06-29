@@ -1,4 +1,5 @@
 import com.google.inject.AbstractModule
+import services.{TramProvider, WaypointProvider}
 import services.{ScheduleProvider, StopsProvider, TramProvider, TripProvider}
 //zostawiłam opis jakby ktoś chciał przypdakiem usunąć
 /**
@@ -18,6 +19,7 @@ class Module extends AbstractModule {
     // Ask Guice to create an instance of TramProvider when the
     // application starts.
     bind(classOf[TramProvider]).asEagerSingleton()
+    bind(classOf[WaypointProvider]).asEagerSingleton()
     bind(classOf[StopsProvider]).asEagerSingleton()
     bind(classOf[TripProvider]).asEagerSingleton()
     bind(classOf[ScheduleProvider]).asEagerSingleton()

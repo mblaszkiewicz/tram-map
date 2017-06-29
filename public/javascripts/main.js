@@ -31,7 +31,7 @@ function update() {
             }
         }
     }
-    request.open('GET', "/data-request", true);
+    request.open('GET', "/data-request?n=" + mymap.getBounds().getNorth() + "&s=" + mymap.getBounds().getSouth() + "&w=" + mymap.getBounds().getWest() + "&e=" + mymap.getBounds().getEast(), true);
     request.send();
     setTimeout(update, 500); //bo on ten timeout liczy od zakończenia się ruchu więc powinno 'prawie nie być' a dla mniejszych nie działa : (
 }
