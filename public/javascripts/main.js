@@ -21,7 +21,7 @@ function update() {
                         delete markers[table.trams[i].id];
                     }
                     if(typeof markers[table.trams[i].id] === 'undefined')
-                        markers[table.trams[i].id] = new L.Marker.movingMarker([[table.trams[i].lat, table.trams[i].lon]], []).bindPopup(table.trams[i].name).addTo(mymap);
+                        markers[table.trams[i].id] = new L.Marker.movingMarker([[table.trams[i].lat, table.trams[i].lon]], []).bindTooltip(table.trams[i].name).addTo(mymap);
                     else
                         markers[table.trams[i].id].moveTo([table.trams[i].lat,table.trams[i].lon], 5000);
                 }

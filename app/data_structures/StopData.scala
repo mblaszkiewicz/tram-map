@@ -8,7 +8,9 @@ object StopData{
   var list: Map[String, StopData] = Map()
 
   def update(newList: List[StopData]): Unit = {
-    list = newList filter (t => t.category == "tram") map (t => t.shortName -> t) toMap
+    list.synchronized {
+      list = newList filter (t => t.category == "tram") map (t => t.shortName -> t) toMap
+    }
   }
 }
 

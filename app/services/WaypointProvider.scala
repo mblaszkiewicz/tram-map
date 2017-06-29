@@ -47,8 +47,10 @@ class WaypointProvider @Inject()(actorSystem: ActorSystem, ws: WSClient)
         for (route <- TramRoute.list)
           route.directions match {
             case Some(directions) =>
-              for(direction <- directions)
+              for(direction <- directions) {
+                Thread.sleep(1000)
                 requestForWaypoints(route.id, direction)
+              }
             case None => Logger.info("Routes download failure!")
           }
       }

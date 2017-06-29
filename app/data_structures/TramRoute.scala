@@ -8,6 +8,8 @@ object TramRoute{
   var list: List[TramRoute] = List()
 
   def update(newList: List[TramRoute]): Unit = {
-    list = newList
+    list.synchronized {
+      list = newList
+    }
   }
 }

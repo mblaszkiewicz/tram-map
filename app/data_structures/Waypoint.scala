@@ -8,6 +8,8 @@ object Waypoint{
   var list: List[Waypoint] = List()
 
   def update(newList: List[Waypoint]): Unit = {
-    list = newList
+    list.synchronized {
+      list = newList
+    }
   }
 }
