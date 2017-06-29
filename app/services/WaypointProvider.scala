@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import akka.actor.FSM.Failure
-import data_structures.{TramRoute, StopA, StopData, Waypoint}
+import data_structures._
 import play.api.Logger
 import play.api.libs.json._
 
@@ -165,6 +165,7 @@ class WaypointProvider @Inject()(actorSystem: ActorSystem, ws: WSClient)
       prevNum = y._1
       prevWaypoint = y._2
     }
+    WaypointMap.update(stopPairsToWaypoints)
     Logger.info("FINAL" + stopPairsToWaypoints.keys.toString())
   }
 }

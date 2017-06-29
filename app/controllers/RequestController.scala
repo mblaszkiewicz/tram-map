@@ -2,12 +2,15 @@ package controllers
 
 import javax.inject._
 import java.util.Calendar
+
 import scala.collection.mutable.Map
-import data_structures.{LightTram, PieceOfSchedule, Schedule, Tram, Stop}
+import data_structures._
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.Logger
+
+import scala.collection.immutable.ListMap
 
 //Ogólnie czy ten jason wysyłany mógłby być jako trams: [lista tych które się poruszają],
 // deleted: [lista tych które trzeba usunąć] ??? (w ogóle czy trzeba tych do usuwania?)
@@ -15,7 +18,7 @@ import play.api.Logger
 @Singleton
 class RequestController @Inject() (cc: ControllerComponents) extends AbstractController(cc) {
 
-  def index = Action {
+  def index(n: Double, s: Double, w: Double, e: Double) = Action {
     //czy to modyfikuje na stałe Tram.currentList???
     var listMoving: List[LightTram] = Tram.currentList.
       filter(tram => {tram.isDeleted.isEmpty}).
@@ -27,8 +30,8 @@ class RequestController @Inject() (cc: ControllerComponents) extends AbstractCon
     //planned trips
 
     //MOCK routs to mapa indeksowana krótkimi nazwami przystanków (od, do) zawierająca listę kolejnych współrzędnych odcinka
-    var routes = Map[(String, String),List[(Int, Int)]]()
-    routes = routes + (("1","2") -> List((180367133,72043450), (180234831, 71825984), (180074257, 71632051), (180064597, 71601349)))
+    var routes: ListMap[(String, String),List[(Long, Long)]] = WaypointMap.routes
+    //routes = routes + (("1","2") -> List((180367133,72043450), (180234831, 71825984), (180074257, 71632051), (180064597, 71601349)))
 
 
     var planned = List[LightTram]()
